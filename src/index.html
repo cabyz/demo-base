@@ -111,4 +111,49 @@ h1>Sign Up for Premium Corgi Content</h1>
 +   // by default, add login and signup functionality
 +   button1.addEventListener('click', login);
 +   button2.addEventListener('click', signup);
+
+const updateUserInfo = (user) => {
+    const container = document.querySelector('.user-info');
+
+    // cloning the buttons removes existing event listeners
+    const b1 = button1.cloneNode(true);
+    const b2 = button2.cloneNode(true);
+
+    // empty the user info div
+    container.innerHTML = '';
+
+    if (user) {
+      b1.innerText = 'Log Out';
+      b1.addEventListener('click', () => {
+        netlifyIdentity.logout();
+      });
+
+      b2.innerText = 'Manage Subscription';
+      b2.addEventListener('click', () => {
+-       // TODO handle subscription management
++       fetch('/.netlify/functions/create-manage-link', {
++         method: 'POST',
++         headers: {
++           Authorization: `Bearer ${user.token.access_token}`,
++         },
++       })
++         .then((res) => res.json())
++         .then((link) => {
++           window.location.href = link;
++         })
++         .catch((err) => console.error(err));
+      });
+    } else {
+      // if no one is logged in, show login/signup options
+      b1.innerText = 'Log In';
+      b1.addEventListener('click', login);
+
+      b2.innerText = 'Sign Up';
+      b2.addEventListener('click', signup);
+    }
+
+    // add the updated buttons back to the user info div
+    container.appendChild(b1);
+    container.appendChild(b2);
+  };
 + </script>
